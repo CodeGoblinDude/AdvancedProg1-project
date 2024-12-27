@@ -3,9 +3,7 @@
 This is a simple personal blog project built with Go (Golang) and PostgreSQL. It provides a RESTful API for managing users and includes a frontend for user interactions.
 
 ## Features
-![photo_2024-12-27_14-58-38](https://github.com/user-attachments/assets/2d6860e4-ad50-45af-aa6a-0ac5a969551a)
-![photo_2024-12-27_14-58-42](https://github.com/user-attachments/assets/54620497-e87a-4d7f-88cc-533e5a9a2b97)
-![photo_2024-12-27_14-58-44](https://github.com/user-attachments/assets/48aaecc6-ce39-4794-bffb-2fc0818a608d)
+![photo_2024-12-27_15-02-27](https://github.com/user-attachments/assets/3bf2cc52-d779-44dd-a05e-16577288a686)
 
 - Create, read, update, and delete (CRUD) operations for users.
 - RESTful API implemented using Go.
