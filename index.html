@@ -5,82 +5,195 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #007BFF;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        main {
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1, h2 {
+            color: #007BFF;
+        }
+
+        form {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        form input, form button {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        form button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 2rem;
         }
+
         table, th, td {
-            border: 1px solid black;
+            border: 1px solid #ddd;
         }
+
         th, td {
-            padding: 10px;
+            padding: 1rem;
             text-align: left;
+        }
+
+        th {
+            background-color: #f1f1f1;
+        }
+
+        .actions button {
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .actions .edit-btn {
+            background-color: #ffc107;
+            color: white;
+        }
+
+        .actions .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .actions button:hover {
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            form input, form button {
+                width: 100%;
+            }
+
+            table {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
 
-<h1>User Management</h1>
+<header>
+    <h1>User Management Dashboard</h1>
+</header>
 
-<!-- Form to create a new user -->
-<h2>Create User</h2>
-<form id="createUserForm">
-    <input type="text" id="name" placeholder="Name" required><br><br>
-    <input type="email" id="email" placeholder="Email" required><br><br>
-    <button type="submit">Create User</button>
+<main>
+    <!-- Form to create a new user -->
+    <h2>Create User</h2>
+    <form id="createUserForm">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <button type="submit">Create User</button>
+    </form>
+
+
+    <!-- Form to search for a user -->
+<h2>Search User</h2>
+<form id="searchUserForm">
+    <input type="number" id="searchUserId" placeholder="User ID to search" required>
+    <button type="submit">Search User</button>
 </form>
 
-<!-- Table to display users -->
-<h2>Users List</h2>
-<table id="usersTable">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Users will be listed here -->
-    </tbody>
-</table>
+<!-- Container to display the searched user -->
+<div id="searchResult" style="margin-top: 1rem; background-color: #fff; padding: 1rem; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); display: none;">
+    <h3>Search Result:</h3>
+    <p><strong>ID:</strong> <span id="resultId"></span></p>
+    <p><strong>Name:</strong> <span id="resultName"></span></p>
+    <p><strong>Email:</strong> <span id="resultEmail"></span></p>
+</div>
 
-<!-- Form to update an existing user -->
+
+    <!-- Table to display users -->
+    <h2>Users List</h2>
+    <table id="usersTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Users will be dynamically populated here -->
+        </tbody>
+    </table>
+
+    <!-- Form to update an existing user -->
 <h2>Update User</h2>
 <form id="updateUserForm">
-    <input type="hidden" id="updateId">
-    <input type="text" id="updateName" placeholder="Name" required><br><br>
-    <input type="email" id="updateEmail" placeholder="Email" required><br><br>
+    <input type="number" id="updateId" placeholder="User ID" required>
+    <input type="text" id="updateName" placeholder="New Name" required>
+    <input type="email" id="updateEmail" placeholder="New Email" required>
     <button type="submit">Update User</button>
 </form>
 
-<!-- Delete user confirmation -->
-<h2>Delete User</h2>
-<form id="deleteUserForm">
-    <input type="number" id="deleteUserId" placeholder="User ID to delete" required><br><br>
-    <button type="submit">Delete User</button>
-</form>
+
+    <!-- Form to delete a user -->
+    <h2>Delete User</h2>
+    <form id="deleteUserForm">
+        <input type="number" id="deleteUserId" placeholder="User ID to delete" required>
+        <button type="submit">Delete User</button>
+    </form>
+</main>
 
 <script>
-    const apiUrl = 'http://localhost:8080';  // Your Go backend URL
+    const apiUrl = 'http://localhost:8080';
 
-    // Fetch users and display them in the table
+    // Fetch users and populate the table
     function fetchUsers() {
         fetch(`${apiUrl}/users`)
             .then(response => response.json())
             .then(users => {
                 const tableBody = document.querySelector('#usersTable tbody');
-                tableBody.innerHTML = ''; // Clear the table
+                tableBody.innerHTML = '';
                 users.forEach(user => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${user.id}</td>
                         <td>${user.name}</td>
                         <td>${user.email}</td>
-                        <td>
-                            <button onclick="editUser(${user.id}, '${user.name}', '${user.email}')">Edit</button>
-                            <button onclick="deleteUser(${user.id})">Delete</button>
+                        <td class="actions">
+                            <button class="edit-btn" onclick="editUser(${user.id}, '${user.name}', '${user.email}')">Edit</button>
+                            <button class="delete-btn" onclick="deleteUser(${user.id})">Delete</button>
                         </td>
                     `;
                     tableBody.appendChild(row);
@@ -89,26 +202,27 @@
             .catch(error => console.error('Error fetching users:', error));
     }
 
-    // Create user
-    document.getElementById('createUserForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
+    // Create a new user
+document.getElementById('createUserForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
 
-        fetch(`${apiUrl}/create`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ name, email })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            fetchUsers();  // Refresh the user list
-        })
-        .catch(error => console.error('Error creating user:', error));
-    });
+    fetch(`${apiUrl}/create`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        fetchUsers();
+    })
+    .catch(error => console.error('Error creating user:', error));
+});
+
 
     // Edit user
     function editUser(id, name, email) {
@@ -118,43 +232,86 @@
     }
 
     // Update user
-    document.getElementById('updateUserForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const id = document.getElementById('updateId').value;
-        const name = document.getElementById('updateName').value;
-        const email = document.getElementById('updateEmail').value;
+    // Update user
+// Update user
+document.getElementById('updateUserForm').addEventListener('submit', function (e) {
+    e.preventDefault();
 
-        fetch(`${apiUrl}/update`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id, name, email })
+    // Get the id, name, and email values from the form
+    const id = parseInt(document.getElementById('updateId').value, 10); // Convert id to number
+    const name = document.getElementById('updateName').value;
+    const email = document.getElementById('updateEmail').value;
+
+    // Send the PUT request to update the user
+    fetch(`${apiUrl}/update`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id, name, email }) // Send all fields as JSON
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update user');
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.message); // Show success message
+            fetchUsers(); // Refresh the user list
+        })
+        .catch(error => console.error('Error updating user:', error));
+});
+
+document.getElementById('searchUserForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Get the user ID from the form
+    const userId = document.getElementById('searchUserId').value;
+
+    // Send the GET request to search for the user
+    fetch(`${apiUrl}/search?id=${userId}`)
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    alert('User not found');
+                } else {
+                    throw new Error('Failed to fetch user');
+                }
+            }
+            return response.json();
+        })
+        .then(user => {
+            // Display the search result
+            document.getElementById('searchResult').style.display = 'block';
+            document.getElementById('resultId').textContent = user.id;
+            document.getElementById('resultName').textContent = user.name;
+            document.getElementById('resultEmail').textContent = user.email;
+        })
+        .catch(error => console.error('Error fetching user:', error));
+});
+
+
+
+
+    // Delete user
+    function deleteUser(id) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        fetch(`${apiUrl}/delete?id=${id}`, {
+            method: 'DELETE'
         })
         .then(response => response.json())
         .then(data => {
             alert(data.message);
-            fetchUsers();  // Refresh the user list
+            fetchUsers(); // Refresh the user list
         })
-        .catch(error => console.error('Error updating user:', error));
-    });
-
-    // Delete user
-    function deleteUser(id) {
-        if (confirm('Are you sure you want to delete this user?')) {
-            fetch(`${apiUrl}/delete?id=${id}`, {
-                method: 'DELETE'
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                fetchUsers();  // Refresh the user list
-            })
-            .catch(error => console.error('Error deleting user:', error));
-        }
+        .catch(error => console.error('Error deleting user:', error));
     }
+}
 
-    // Initial fetch of users when the page loads
+
+
+    // Fetch users on page load
     fetchUsers();
 </script>
 
